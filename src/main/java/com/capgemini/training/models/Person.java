@@ -1,7 +1,8 @@
 package com.capgemini.training.models;
 
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,16 +15,19 @@ import java.util.UUID;
 public class Person {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
-    @NotNull
+    @NotNull(message = "Firstname must not be null")
     private String firstname;
-    @NotNull
+    @NotNull(message = "Lastname must not be null")
     private String lastname;
-    @NotNull
+    @NotNull(message = "Start date must not be null")
+    @JsonFormat(pattern="dd/MM/yyyy")
     private Date startDate;
+    @JsonFormat(pattern="dd/MM/yyyy")
     private Date endDate;
-    @NotNull
+    @NotNull(message = "Level must not be null")
     private Level level;
 
     @ManyToOne

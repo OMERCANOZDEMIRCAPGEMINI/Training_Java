@@ -1,6 +1,8 @@
 package com.capgemini.training.models;
 
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
@@ -9,7 +11,8 @@ import java.util.UUID;
 @Table(name = "UNITS")
 public class Unit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
     @NotNull
     private String name;
