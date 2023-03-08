@@ -1,8 +1,10 @@
 package com.capgemini.training.controllers;
 
+import com.capgemini.training.loggers.ILogger;
 import com.capgemini.training.models.Person;
 import com.capgemini.training.services.IPersonService;
-import org.apache.catalina.filters.ExpiresFilter;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -18,33 +20,40 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "persons")
-
+@RequestMapping(value = "people")
+@Api(tags = "Person controller")
 public class PersonController {
     @Autowired
     public IPersonService personService;
+    @Autowired
+    public ILogger logger;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get all people from database")
     public ResponseEntity<?> getAll() {
         try {
-            Iterable<Person> persons = personService.getAllPersons();
-            return ResponseEntity.ok(persons);
+            Iterable<Person> people = personService.getAllPersons();
+            return ResponseEntity.ok(people);
         } catch (Exception e) {
+            logger.log(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
     @GetMapping(value = "{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get person by UUID from database")
     public ResponseEntity<?> getById(@PathVariable(value = "id")UUID id) {
         try {
             Optional<Person> person = personService.getPersonById(id);
             return ResponseEntity.ok(person);
         } catch (Exception e) {
+            logger.log(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Create a person")
     public ResponseEntity<?> create(@Valid @RequestBody Person person, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
@@ -56,6 +65,7 @@ public class PersonController {
             Person createdPerson = personService.create(person);
             return ResponseEntity.ok(createdPerson);
         } catch (Exception e) {
+            logger.log(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
