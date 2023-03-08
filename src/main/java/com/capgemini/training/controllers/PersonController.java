@@ -28,6 +28,7 @@ public class PersonController {
     @Autowired
     public ILogger logger;
 
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all people from database")
     public ResponseEntity<?> getAll() {
@@ -39,12 +40,16 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    @GetMapping(value = "{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get person by UUID from database")
-    public ResponseEntity<?> getById(@PathVariable(value = "id")UUID id) {
+    public ResponseEntity<?> getById(@PathVariable(value = "id") UUID id) {
         try {
             Optional<Person> person = personService.getPersonById(id);
-            return ResponseEntity.ok(person);
+            if (person.isPresent()) {
+                return ResponseEntity.ok(person.get());
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
         } catch (Exception e) {
             logger.log(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
