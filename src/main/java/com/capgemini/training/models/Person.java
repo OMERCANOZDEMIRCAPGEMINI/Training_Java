@@ -3,6 +3,7 @@ package com.capgemini.training.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.Type;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,16 +19,19 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
-    @NotNull(message = "Firstname must not be null")
+    @NotNull(message = "Firstname must not be empty")
     private String firstname;
-    @NotNull(message = "Lastname must not be null")
+    @NotNull(message = "Lastname must not be empty")
     private String lastname;
-    @NotNull(message = "Start date must not be null")
-    @JsonFormat(pattern="dd/MM/yyyy")
+    @NotNull(message = "Start date must not be empty")
+    @JsonFormat(pattern = "dd/mm/yyyy")
+    private Date birthDate;
+    @NotNull(message = "Start date must not be empty")
+    @JsonFormat(pattern = "dd/mm/yyyy")
     private Date startDate;
-    @JsonFormat(pattern="dd/MM/yyyy")
+    @JsonFormat(pattern = "dd/mm/yyyy")
     private Date endDate;
-    @NotNull(message = "Level must not be null")
+    @NotNull(message = "Level must not be empty")
     private Level level;
 
     @ManyToOne
