@@ -1,6 +1,9 @@
 package com.capgemini.training.controllers;
 
+import com.capgemini.training.dtos.PersonDTO;
+import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.loggers.ILogger;
+import com.capgemini.training.mappers.PersonMapper;
 import com.capgemini.training.models.Person;
 import com.capgemini.training.services.IPersonService;
 import io.swagger.annotations.Api;
@@ -37,7 +40,7 @@ public class PersonController {
             return ResponseEntity.ok(people);
         } catch (Exception e) {
             logger.log(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
 
@@ -52,14 +55,14 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
         } catch (Exception e) {
             logger.log(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a person")
-    public ResponseEntity<?> create(@Valid @RequestBody Person person, BindingResult bindingResult) {
+    public ResponseEntity<?> create(@Valid @RequestBody PersonDTO person, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -67,11 +70,20 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
         try {
-            Person createdPerson = personService.create(person);
-            return ResponseEntity.ok(createdPerson);
-        } catch (Exception e) {
+            Person createdPerson = personService.create(PersonMapper.INSTANCE.personDtoToPerson(person),person.getCounselorId());
+
+            PersonDTO responsePerson = PersonMapper.INSTANCE.personToPersonDto(createdPerson);
+            responsePerson.setCounselorId(person.getCounselorId());
+
+            return ResponseEntity.ok(responsePerson);
+        }
+        catch (PersonCannotBeCreatedException e){
             logger.log(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+        catch (Exception e) {
+            logger.log(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
 }

@@ -1,7 +1,10 @@
 package com.capgemini.training.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -34,11 +37,14 @@ public class Person {
     @NotNull(message = "Level must not be empty")
     private Level level;
 
+
     @ManyToOne
     @JoinColumn(name = "counselor_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Person counselor;
 
-    @OneToMany(mappedBy = "counselor")
+    @OneToMany
+    @JsonManagedReference
     private Set<Person> counselees;
 
     public Person() {
@@ -74,6 +80,14 @@ public class Person {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public Date getEndDate() {

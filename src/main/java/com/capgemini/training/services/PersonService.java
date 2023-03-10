@@ -1,5 +1,6 @@
 package com.capgemini.training.services;
 
+import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.models.Person;
 import com.capgemini.training.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,22 @@ public class PersonService implements IPersonService {
     }
 
     @Override
-    public Person create(Person person) {
+    public Person create(Person person, UUID counselorId) throws PersonCannotBeCreatedException {
+        if (counselorId != null) {
+            Optional<Person> counselor = getPersonById(counselorId);
+            if (counselor.isPresent()) {
+                if (counselor.get().getLevel().compareTo(person.getLevel()) > 0) {
+                    person.setCounselor(counselor.get());
+                } else {
+                    throw new PersonCannotBeCreatedException("Person cannot be created due to the level of the counselor");
+                }
+            } else {
+                throw new PersonCannotBeCreatedException("Person cannot be created because counselor does not exist");
+            }
+        }
         return personRepository.save(person);
     }
+
 
     @Override
     public Optional<Person> getPersonById(UUID id) {

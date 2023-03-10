@@ -1,11 +1,16 @@
 package com.capgemini.training.controllers;
 
+import com.capgemini.training.dtos.PersonDTO;
+import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.loggers.ILogger;
+import com.capgemini.training.mappers.PersonMapper;
 import com.capgemini.training.models.Person;
 import com.capgemini.training.services.IPersonService;
-import org.h2.tools.GUIConsole;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,17 +18,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@Mapper(componentModel = "spring")
 class PersonControllerTest {
     @Mock
     private IPersonService personService;
@@ -103,32 +106,42 @@ class PersonControllerTest {
     }
 
     @Test
-    void shouldCreatePerson() {
+    void shouldCreatePersonWithoutCounselor() throws PersonCannotBeCreatedException {
         // Arrange
+        PersonDTO personDto = new PersonDTO();
+        personDto.setLastname("Ozdemir");
+        personDto.setFirstname("Omer");
+        personDto.setCounselorId(null);
+
         Person person = new Person();
         person.setLastname("Ozdemir");
         person.setFirstname("Omer");
+        person.setCounselor(null);
 
         // Act
-        when(personService.create(person)).thenReturn(person);
-        Person createdPerson = (Person) controller.create(person,bindingResult).getBody();
+        when(personService.create(any(Person.class), eq(null))).thenReturn(person);
+
+        PersonDTO createdPerson = (PersonDTO) controller.create(personDto, bindingResult).getBody();
 
         //assert
-        assertEquals(person,createdPerson);
+        assertNotNull(createdPerson);
+        assertEquals(personDto.getFirstname(), createdPerson.getFirstname());
+        assertEquals(personDto.getLastname(), createdPerson.getLastname());
     }
+
     @Test
-    void shouldGetExceptionWhenCreatingPerson() {
+    void shouldGetExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
         // Arrange
-        Person person = new Person();
-        person.setLastname("Ozdemir");
-        person.setFirstname("Omer");
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setLastname("Ozdemir");
+        personDTO.setFirstname("Omer");
 
         // Act
-        when(personService.create(person)).thenThrow(new RuntimeException("Unable to create a person"));
-        ResponseEntity<?> response = controller.create(person,bindingResult);
+        when(personService.create(any(Person.class), eq(null))).thenThrow(new RuntimeException("Runtime exception"));
+        ResponseEntity<?> response = controller.create(personDTO, bindingResult);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).log("Unable to create a person");
+        verify(logger).log("Runtime exception");
     }
 }

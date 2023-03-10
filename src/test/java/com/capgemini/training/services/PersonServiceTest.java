@@ -1,5 +1,6 @@
 package com.capgemini.training.services;
 
+import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.models.Level;
 import com.capgemini.training.models.Person;
 import com.capgemini.training.repositories.PersonRepository;
@@ -46,7 +47,7 @@ class PersonServiceTest {
     }
 
     @Test
-    void create() {
+    void ShouldCreatePersonWithoutCounselor() throws PersonCannotBeCreatedException {
         // Arrange
         Person person = new Person();
         person.setFirstname("omer");
@@ -54,7 +55,7 @@ class PersonServiceTest {
 
         // Act
         when(personRepository.save(person)).thenReturn(person);
-        Person created_person = personService.create(person);
+        Person created_person = personService.create(person,null);
         // Assert
         assertEquals(person, created_person);
     }
