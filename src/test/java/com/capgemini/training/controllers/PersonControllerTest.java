@@ -135,6 +135,7 @@ class PersonControllerTest {
 
         // Act
         when(personService.create(any(Person.class), eq(null))).thenThrow(new RuntimeException("Runtime exception"));
+
         ResponseEntity<?> response = controller.create(personDTO, bindingResult);
 
         // Assert
