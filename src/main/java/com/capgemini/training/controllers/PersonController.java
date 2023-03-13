@@ -78,7 +78,6 @@ public class PersonController {
             return ResponseEntity.ok(responsePerson);
         }
         catch (PersonCannotBeCreatedException e){
-            logger.log(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         catch (Exception e) {

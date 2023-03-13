@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,5 +77,62 @@ class PersonServiceTest {
 
         // assert
         assertEquals(person,personDb);
+    }
+
+    @Test
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByGivingBadCounselorId() throws PersonCannotBeCreatedException {
+        // Arrange
+        UUID random_uuid = UUID.randomUUID();
+        Person person = new Person();
+
+        // Act
+        when(personService.getPersonById(any(UUID.class))).thenReturn(Optional.empty());
+        // Assert
+        assertThrows(PersonCannotBeCreatedException.class, () -> {
+            personService.create(person, random_uuid);
+        });
+
+    }
+    @Test
+    void shouldCreatePersonWithValidCounselorId() throws PersonCannotBeCreatedException {
+        // Arrange
+        UUID uuid = UUID.randomUUID();
+        Person person = new Person();
+        person.setFirstname("omer");
+        person.setLevel(Level.A3);
+
+        Person counselor = new Person();
+        counselor.setId(uuid);
+        counselor.setLevel(Level.A4);
+        // Act
+        when(personService.getPersonById(any(UUID.class))).thenReturn(Optional.of(counselor));
+        when(personRepository.save(any(Person.class))).thenReturn(person);
+        Person createdPerson = personService.create(person,uuid);
+        // Assert
+
+        assertEquals(person.getFirstname(),createdPerson.getFirstname());
+        assertEquals(person.getCounselor().getId(),counselor.getId());
+
+
+    }
+    @Test
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws PersonCannotBeCreatedException {
+        // Arrange
+        UUID uuid = UUID.randomUUID();
+        Person person = new Person();
+        person.setFirstname("omer");
+        person.setLevel(Level.A4);
+
+        Person counselor = new Person();
+        counselor.setId(uuid);
+        counselor.setLevel(Level.A3);
+        // Act
+        when(personService.getPersonById(any(UUID.class))).thenReturn(Optional.of(counselor));
+        // Assert
+        assertThrows(PersonCannotBeCreatedException.class, () -> {
+            personService.create(person, uuid);
+        });
+
+
     }
 }

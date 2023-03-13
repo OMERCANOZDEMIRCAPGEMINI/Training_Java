@@ -142,4 +142,17 @@ class PersonControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         verify(logger).log("Runtime exception");
     }
+    @Test
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
+        // Arrange
+        PersonDTO personDTO = new PersonDTO();
+        // Act
+        when(personService.create(any(Person.class), eq(null))).thenThrow(new PersonCannotBeCreatedException("Person cannot be created"));
+
+        ResponseEntity<?> response = controller.create(personDTO, bindingResult);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Person cannot be created",response.getBody());
+    }
 }
