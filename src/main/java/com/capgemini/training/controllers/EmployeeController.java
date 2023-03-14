@@ -2,12 +2,13 @@ package com.capgemini.training.controllers;
 
 import com.capgemini.training.dtos.EmployeeDTO;
 import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
-import com.capgemini.training.loggers.ILogger;
 import com.capgemini.training.mappers.PersonMapper;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.services.PersonService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,10 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "employees")
 @Api(tags = "Employees controller")
 public class EmployeeController {
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+
     @Autowired
     public PersonService personService;
-    @Autowired
-    public ILogger logger;
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,7 +40,7 @@ public class EmployeeController {
             Iterable<Employee> people = personService.getAll();
             return ResponseEntity.ok(people);
         } catch (Exception e) {
-            logger.log(e.getMessage());
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
@@ -55,7 +56,7 @@ public class EmployeeController {
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
         } catch (Exception e) {
-            logger.log(e.getMessage());
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
@@ -76,12 +77,11 @@ public class EmployeeController {
             responsePerson.setCounselorId(employeeDTO.getCounselorId());
 
             return ResponseEntity.ok(responsePerson);
-        }
-        catch (PersonCannotBeCreatedException e){
+        } catch (PersonCannotBeCreatedException e) {
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-        catch (Exception e) {
-            logger.log(e.getMessage());
+        } catch (Exception e) {
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }

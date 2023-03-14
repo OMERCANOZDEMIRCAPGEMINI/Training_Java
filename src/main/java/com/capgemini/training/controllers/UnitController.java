@@ -6,6 +6,8 @@ import com.capgemini.training.models.Unit;
 import com.capgemini.training.services.UnitService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "units")
 @Api(tags = "Unit controller")
 public class UnitController {
+    private static final Logger logger = LoggerFactory.getLogger(UnitController.class);
+
     @Autowired
     public UnitService unitService;
 
@@ -34,6 +38,7 @@ public class UnitController {
             Iterable<Unit> people = unitService.getAll();
             return ResponseEntity.ok(people);
         } catch (Exception e) {
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
@@ -48,9 +53,11 @@ public class UnitController {
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
         } catch (Exception e) {
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create an unit")
     public ResponseEntity<?> create(@Valid @RequestBody UnitDTO unit, BindingResult bindingResult) {
@@ -65,8 +72,8 @@ public class UnitController {
 
             UnitDTO responseUnit = UnitMapper.INSTANCE.unitToUnitDto(createdUnit);
             return ResponseEntity.ok(responseUnit);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            logger.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
         }
     }
