@@ -1,10 +1,10 @@
 package com.capgemini.training.controllers;
 
-import com.capgemini.training.dtos.PersonDTO;
+import com.capgemini.training.dtos.EmployeeDTO;
 import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.loggers.ILogger;
-import com.capgemini.training.models.Person;
-import com.capgemini.training.services.IPersonService;
+import com.capgemini.training.models.Employee;
+import com.capgemini.training.services.PersonService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.Mapper;
@@ -24,9 +24,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Mapper(componentModel = "spring")
-class PersonControllerTest {
+class EmployeeControllerTest {
     @Mock
-    private IPersonService personService;
+    private PersonService personService;
 
     @Mock
     private ILogger logger;
@@ -34,27 +34,27 @@ class PersonControllerTest {
     private BindingResult bindingResult;
 
     @InjectMocks
-    private PersonController controller;
+    private EmployeeController controller;
 
     @Test
     void shouldGetAllPeople() {
         // Arrange
-        List<Person> persons = new ArrayList<Person>();
-        persons.add(new Person());
-        persons.add(new Person());
+        List<Employee> employees = new ArrayList<Employee>();
+        employees.add(new Employee());
+        employees.add(new Employee());
 
         // Act
-        when(personService.getAllPersons()).thenReturn(persons);
+        when(personService.getAll()).thenReturn(employees);
 
         // Assert
-        Iterable<Person> result = (Iterable<Person>) controller.getAll().getBody();
-        assertEquals(persons, result);
+        Iterable<Employee> result = (Iterable<Employee>) controller.getAll().getBody();
+        assertEquals(employees, result);
     }
 
     @Test
     void shouldGetExceptionByCallingAllPeople() {
         // Act
-        when(personService.getAllPersons()).thenThrow(new RuntimeException("Error when fetching people"));
+        when(personService.getAll()).thenThrow(new RuntimeException("Error when fetching people"));
         ResponseEntity<?> response = controller.getAll();
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -65,17 +65,17 @@ class PersonControllerTest {
     void shouldGetPersonById() {
         // Arrange
         UUID id = UUID.randomUUID();
-        Person person = new Person();
-        person.setFirstname("omer");
-        person.setLastname("Ozdemir");
-        person.setId(id);
+        Employee employee = new Employee();
+        employee.setFirstname("omer");
+        employee.setLastname("Ozdemir");
+        employee.setId(id);
 
         // Act
-        when(personService.getPersonById(id)).thenReturn(Optional.of(person));
-        Person personDb = (Person) controller.getById(id).getBody();
+        when(personService.getById(id)).thenReturn(Optional.of(employee));
+        Employee employeeDb = (Employee) controller.getById(id).getBody();
 
         // Assert
-        assertEquals(person, personDb);
+        assertEquals(employee, employeeDb);
     }
 
     @Test
@@ -83,7 +83,7 @@ class PersonControllerTest {
         // Arrange
         UUID id = UUID.randomUUID();
         // Act
-        when(personService.getPersonById(any(UUID.class))).thenReturn(Optional.empty());
+        when(personService.getById(any(UUID.class))).thenReturn(Optional.empty());
         ResponseEntity<?> response = controller.getById(id);
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -95,7 +95,7 @@ class PersonControllerTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         // Act
-        when(personService.getPersonById(any(UUID.class))).thenThrow(new RuntimeException("Error when fetching person"));
+        when(personService.getById(any(UUID.class))).thenThrow(new RuntimeException("Error when fetching person"));
         ResponseEntity<?> response = controller.getById(uuid);
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -105,38 +105,38 @@ class PersonControllerTest {
     @Test
     void shouldCreatePersonWithoutCounselor() throws PersonCannotBeCreatedException {
         // Arrange
-        PersonDTO personDto = new PersonDTO();
-        personDto.setLastname("Ozdemir");
-        personDto.setFirstname("Omer");
-        personDto.setCounselorId(null);
+        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
+        EMPLOYEEDTO.setLastname("Ozdemir");
+        EMPLOYEEDTO.setFirstname("Omer");
+        EMPLOYEEDTO.setCounselorId(null);
 
-        Person person = new Person();
-        person.setLastname("Ozdemir");
-        person.setFirstname("Omer");
-        person.setCounselor(null);
+        Employee employee = new Employee();
+        employee.setLastname("Ozdemir");
+        employee.setFirstname("Omer");
+        employee.setCounselor(null);
 
         // Act
-        when(personService.create(any(Person.class), eq(null))).thenReturn(person);
+        when(personService.create(any(Employee.class))).thenReturn(employee);
 
-        PersonDTO createdPerson = (PersonDTO) controller.create(personDto, bindingResult).getBody();
+        EmployeeDTO createdPerson = (EmployeeDTO) controller.create(EMPLOYEEDTO, bindingResult).getBody();
 
         //assert
         assertNotNull(createdPerson);
-        assertEquals(personDto.getFirstname(), createdPerson.getFirstname());
-        assertEquals(personDto.getLastname(), createdPerson.getLastname());
+        assertEquals(EMPLOYEEDTO.getFirstname(), createdPerson.getFirstname());
+        assertEquals(EMPLOYEEDTO.getLastname(), createdPerson.getLastname());
     }
 
     @Test
     void shouldGetExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
         // Arrange
-        PersonDTO personDTO = new PersonDTO();
-        personDTO.setLastname("Ozdemir");
-        personDTO.setFirstname("Omer");
+        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
+        EMPLOYEEDTO.setLastname("Ozdemir");
+        EMPLOYEEDTO.setFirstname("Omer");
 
         // Act
-        when(personService.create(any(Person.class), eq(null))).thenThrow(new RuntimeException("Runtime exception"));
+        when(personService.create(any(Employee.class))).thenThrow(new RuntimeException("Runtime exception"));
 
-        ResponseEntity<?> response = controller.create(personDTO, bindingResult);
+        ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -145,11 +145,11 @@ class PersonControllerTest {
     @Test
     void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
         // Arrange
-        PersonDTO personDTO = new PersonDTO();
+        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
         // Act
-        when(personService.create(any(Person.class), eq(null))).thenThrow(new PersonCannotBeCreatedException("Person cannot be created"));
+        when(personService.create(any(Employee.class))).thenThrow(new PersonCannotBeCreatedException("Person cannot be created"));
 
-        ResponseEntity<?> response = controller.create(personDTO, bindingResult);
+        ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

@@ -1,11 +1,11 @@
 package com.capgemini.training.controllers;
 
-import com.capgemini.training.dtos.PersonDTO;
+import com.capgemini.training.dtos.EmployeeDTO;
 import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
 import com.capgemini.training.loggers.ILogger;
 import com.capgemini.training.mappers.PersonMapper;
-import com.capgemini.training.models.Person;
-import com.capgemini.training.services.IPersonService;
+import com.capgemini.training.models.Employee;
+import com.capgemini.training.services.PersonService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +23,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "people")
-@Api(tags = "Person controller")
-public class PersonController {
+@RequestMapping(value = "employees")
+@Api(tags = "Employees controller")
+public class EmployeeController {
     @Autowired
-    public IPersonService personService;
+    public PersonService personService;
     @Autowired
     public ILogger logger;
 
@@ -36,7 +36,7 @@ public class PersonController {
     @ApiOperation(value = "Get all people from database")
     public ResponseEntity<?> getAll() {
         try {
-            Iterable<Person> people = personService.getAllPersons();
+            Iterable<Employee> people = personService.getAll();
             return ResponseEntity.ok(people);
         } catch (Exception e) {
             logger.log(e.getMessage());
@@ -48,7 +48,8 @@ public class PersonController {
     @ApiOperation(value = "Get person by UUID from database")
     public ResponseEntity<?> getById(@PathVariable(value = "id") UUID id) {
         try {
-            Optional<Person> person = personService.getPersonById(id);
+
+            Optional<Employee> person = personService.getById(id);
             if (person.isPresent()) {
                 return ResponseEntity.ok(person.get());
             }
@@ -62,7 +63,7 @@ public class PersonController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a person")
-    public ResponseEntity<?> create(@Valid @RequestBody PersonDTO person, BindingResult bindingResult) {
+    public ResponseEntity<?> create(@Valid @RequestBody EmployeeDTO employeeDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -70,10 +71,9 @@ public class PersonController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
         try {
-            Person createdPerson = personService.create(PersonMapper.INSTANCE.personDtoToPerson(person),person.getCounselorId());
-
-            PersonDTO responsePerson = PersonMapper.INSTANCE.personToPersonDto(createdPerson);
-            responsePerson.setCounselorId(person.getCounselorId());
+            Employee createdEmployee = personService.create(PersonMapper.INSTANCE.personDtoToPerson(employeeDTO));
+            EmployeeDTO responsePerson = PersonMapper.INSTANCE.personToPersonDto(createdEmployee);
+            responsePerson.setCounselorId(employeeDTO.getCounselorId());
 
             return ResponseEntity.ok(responsePerson);
         }

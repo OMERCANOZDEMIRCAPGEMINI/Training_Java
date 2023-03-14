@@ -1,6 +1,7 @@
 package com.capgemini.training.dtos;
 
 import com.capgemini.training.models.Level;
+import com.capgemini.training.models.Unit;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
 
-public class PersonDTO {
+public class EmployeeDTO {
 
     @NotNull(message = "Firstname must not be empty")
     private String firstname;
@@ -27,7 +28,12 @@ public class PersonDTO {
     @JsonProperty(value = "counselor_id")
     private UUID counselorId;
 
-    public PersonDTO() {
+    @NotNull(message = "Employee must have an unit")
+    @JsonProperty("unit_id")
+    private UUID unitId;
+
+
+    public EmployeeDTO() {
     }
 
     public String getFirstname() {
@@ -60,6 +66,14 @@ public class PersonDTO {
 
     public void setCounselorId(UUID counselorId) {
         this.counselorId = counselorId;
+    }
+
+    public UUID getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(UUID unitId) {
+        this.unitId = unitId;
     }
 
     public Date getStartDate() {

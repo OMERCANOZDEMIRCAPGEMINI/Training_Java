@@ -1,10 +1,12 @@
 package com.capgemini.training.models;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -14,11 +16,12 @@ public class Unit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
-    @NotNull
+    @NotNull(message = "Name cannot be null")
     private String name;
     @OneToOne
     @JoinColumn(name = "manager_id", referencedColumnName = "id")
-    private Person manager;
+    private Employee manager;
+
 
     public Unit() {
     }
@@ -39,11 +42,12 @@ public class Unit {
         this.name = name;
     }
 
-    public Person getManager() {
+    public Employee getManager() {
         return manager;
     }
 
-    public void setManager(Person manager) {
+    public void setManager(Employee manager) {
         this.manager = manager;
     }
+
 }

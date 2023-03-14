@@ -1,12 +1,8 @@
 package com.capgemini.training.models;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.Type;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,8 +11,8 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "PERSON")
-public class Person {
+@Table(name = "EMPLOYEE")
+public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,17 +33,24 @@ public class Person {
     @NotNull(message = "Level must not be empty")
     private Level level;
 
-
     @ManyToOne
     @JoinColumn(name = "counselor_id")
-    @JsonIdentityReference(alwaysAsId = true)
-    private Person counselor;
+    private Employee counselor;
 
+    @Transient
+    @JsonIgnore
+    private UUID counselorId;
+    @Transient
+    @JsonIgnore
+    private UUID unitId;
     @OneToMany
-    @JsonManagedReference
-    private Set<Person> counselees;
+    private Set<Employee> counselees;
 
-    public Person() {
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
+
+    public Employee() {
     }
 
     public UUID getId() {
@@ -64,6 +67,14 @@ public class Person {
 
     public void setFirstname(String firstname) {
         this.firstname = firstname;
+    }
+
+    public UUID getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(UUID unitId) {
+        this.unitId = unitId;
     }
 
     public String getLastname() {
@@ -86,6 +97,14 @@ public class Person {
         return birthDate;
     }
 
+    public UUID getCounselorId() {
+        return counselorId;
+    }
+
+    public void setCounselorId(UUID counselorId) {
+        this.counselorId = counselorId;
+    }
+
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
@@ -105,20 +124,30 @@ public class Person {
     public void setLevel(Level level) {
         this.level = level;
     }
+    @JsonBackReference
 
-    public Person getCounselor() {
+    public Employee getCounselor() {
         return counselor;
     }
 
-    public void setCounselor(Person counselor) {
+    public void setCounselor(Employee counselor) {
         this.counselor = counselor;
     }
 
-    public Set<Person> getCounselees() {
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    @JsonManagedReference
+
+    public Set<Employee> getCounselees() {
         return counselees;
     }
 
-    public void setCounselees(Set<Person> counselees) {
+    public void setCounselees(Set<Employee> counselees) {
         this.counselees = counselees;
     }
 }
