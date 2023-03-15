@@ -1,7 +1,7 @@
 package com.capgemini.training.controllers;
 
 import com.capgemini.training.dtos.ResponseDTO;
-import com.capgemini.training.dtos.UnitDTO;
+import com.capgemini.training.dtos.post.UnitPostDTO;
 import com.capgemini.training.mappers.UnitMapper;
 import com.capgemini.training.models.Unit;
 import com.capgemini.training.services.UnitService;
@@ -62,7 +62,7 @@ public class UnitController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create an unit")
-    public ResponseEntity<ResponseDTO> create(@Valid @RequestBody UnitDTO unit, BindingResult bindingResult) {
+    public ResponseEntity<ResponseDTO> create(@Valid @RequestBody UnitPostDTO unit, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -71,7 +71,7 @@ public class UnitController {
         }
         try {
             Unit createdUnit = unitService.create(UnitMapper.INSTANCE.unitDtoToUnit(unit));
-            UnitDTO responseUnit = UnitMapper.INSTANCE.unitToUnitDto(createdUnit);
+            UnitPostDTO responseUnit = UnitMapper.INSTANCE.unitToUnitDto(createdUnit);
             return ResponseEntity.ok(new ResponseDTO(responseUnit));
         } catch (Exception e) {
             logger.error(e.getMessage());

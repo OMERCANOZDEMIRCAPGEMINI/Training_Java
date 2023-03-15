@@ -1,17 +1,17 @@
-package com.capgemini.training.dtos;
+package com.capgemini.training.dtos.post;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-public class UnitDTO {
+public class UnitPostDTO {
     @NotNull(message = "Name cannot be null")
     private String name;
     @JsonProperty(value = "manager_id")
     private UUID managerId;
 
-    public UnitDTO() {
+    public UnitPostDTO() {
     }
 
     public String getName() {

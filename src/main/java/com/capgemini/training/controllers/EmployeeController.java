@@ -1,11 +1,12 @@
 package com.capgemini.training.controllers;
 
-import com.capgemini.training.dtos.EmployeeDTO;
+import com.capgemini.training.dtos.get.EmployeeGetDTO;
+import com.capgemini.training.dtos.post.EmployeePostDTO;
 import com.capgemini.training.dtos.ResponseDTO;
-import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
+import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
 import com.capgemini.training.mappers.EmployeeMapper;
 import com.capgemini.training.models.Employee;
-import com.capgemini.training.services.PersonService;
+import com.capgemini.training.services.EmployeeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 public class EmployeeController {
 
     @Autowired
-    public PersonService personService;
+    public EmployeeService employeeService;
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
@@ -39,54 +40,67 @@ public class EmployeeController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all people from database")
-    public ResponseEntity<ResponseDTO> getAll() {
+    public ResponseEntity<ResponseDTO<Iterable<EmployeeGetDTO>>> getAll() {
         try {
-            Iterable<Employee> employees = personService.getAll();
-            return ResponseEntity.ok(new ResponseDTO(employees));
+            Iterable<EmployeeGetDTO> employees = EmployeeMapper.INSTANCE.employeesListToEmployeesGetListDto(employeeService.getAll());
+            return ResponseEntity.ok(new ResponseDTO<>(employees));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
         }
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get person by UUID from database")
-    public ResponseEntity<ResponseDTO> getById(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> getById(@PathVariable(value = "id") UUID id) {
         try {
 
-            Optional<Employee> employee = personService.getById(id);
+            Optional<Employee> employee = employeeService.getById(id);
             if (employee.isPresent()) {
-                return ResponseEntity.ok(new ResponseDTO(employee.get()));
+                EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(employee.get());
+                return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO("Person not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO<>("Person not found"));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
         }
     }
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a person")
-    public ResponseEntity<ResponseDTO> create(@Valid @RequestBody EmployeeDTO employeeDTO, BindingResult bindingResult) {
+    public ResponseEntity<ResponseDTO<EmployeePostDTO>> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(errors));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(errors));
         }
         try {
-            Employee createdEmployee = personService.create(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employeeDTO));
-            EmployeeDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeDto(createdEmployee);
-            responseEmployee.setCounselorId(employeeDTO.getCounselorId());
-
-            return ResponseEntity.ok(new ResponseDTO(responseEmployee));
-        } catch (PersonCannotBeCreatedException e) {
+            Employee createdEmployee = employeeService.create(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employeePostDTO));
+            EmployeePostDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeePostDto(createdEmployee);
+            return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
+        } catch (ObjectCannotBeCreatedException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
+        }
+    }
+    @PutMapping(value = "{employeeId}/{counselorId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> updateCounselorFromCounselee(@PathVariable(value = "employeeId") UUID employeeId,@PathVariable(value = "counselorId") UUID counselorId){
+        try {
+            Employee updatedEmployee = employeeService.updateCounselorFromEmployee(employeeId,counselorId);
+            EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
+            return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
+        } catch (ObjectCannotBeCreatedException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
         }
     }
 }

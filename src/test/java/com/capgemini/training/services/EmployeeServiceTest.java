@@ -1,6 +1,6 @@
 package com.capgemini.training.services;
 
-import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
+import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.models.Level;
 import com.capgemini.training.repositories.EmployeeRepository;
@@ -26,7 +26,7 @@ class EmployeeServiceTest {
     private EmployeeRepository employeeRepository;
 
     @InjectMocks
-    private PersonService personService;
+    private EmployeeService employeeService;
 
     @BeforeEach
     void setUp() {
@@ -41,14 +41,14 @@ class EmployeeServiceTest {
 
         // Act
         when(employeeRepository.findAll()).thenReturn(people);
-        Iterable<Employee> result = personService.getAll();
+        Iterable<Employee> result = employeeService.getAll();
 
         // Assert
         assertEquals(people, result);
     }
 
     @Test
-    void ShouldCreatePersonWithoutCounselor() throws PersonCannotBeCreatedException {
+    void ShouldCreatePersonWithoutCounselor() throws ObjectCannotBeCreatedException {
         // Arrange
         Employee employee = new Employee();
         employee.setFirstname("omer");
@@ -56,7 +56,7 @@ class EmployeeServiceTest {
 
         // Act
         when(employeeRepository.save(employee)).thenReturn(employee);
-        Employee created_employee = personService.create(employee);
+        Employee created_employee = employeeService.create(employee);
         // Assert
         assertEquals(employee, created_employee);
     }
@@ -73,28 +73,28 @@ class EmployeeServiceTest {
 
         // Act
         when(employeeRepository.findById(uuid)).thenReturn(Optional.of(employee));
-        Employee employeeDb = personService.getById(uuid).get();
+        Employee employeeDb = employeeService.getById(uuid).get();
 
         // assert
         assertEquals(employee, employeeDb);
     }
 
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByGivingBadCounselorId() throws PersonCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByGivingBadCounselorId() throws ObjectCannotBeCreatedException {
         // Arrange
         Employee employee = new Employee();
         employee.setCounselorId(UUID.randomUUID());
 
         // Act
-        when(personService.getById(any(UUID.class))).thenReturn(Optional.empty());
+        when(employeeService.getById(any(UUID.class))).thenReturn(Optional.empty());
         // Assert
-        assertThrows(PersonCannotBeCreatedException.class, () -> {
-            personService.create(employee);
+        assertThrows(ObjectCannotBeCreatedException.class, () -> {
+            employeeService.create(employee);
         });
 
     }
     @Test
-    void shouldCreatePersonWithValidCounselorId() throws PersonCannotBeCreatedException {
+    void shouldCreatePersonWithValidCounselorId() throws ObjectCannotBeCreatedException {
         // Arrange
         UUID uuid = UUID.randomUUID();
         Employee employee = new Employee();
@@ -107,9 +107,9 @@ class EmployeeServiceTest {
         counselor.setId(uuid);
         counselor.setLevel(Level.A4);
         // Act
-        when(personService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
+        when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
-        Employee createdEmployee = personService.create(employee);
+        Employee createdEmployee = employeeService.create(employee);
         // Assert
 
         assertEquals(employee.getFirstname(), createdEmployee.getFirstname());
@@ -118,7 +118,7 @@ class EmployeeServiceTest {
 
     }
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws PersonCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws ObjectCannotBeCreatedException {
         // Arrange
         UUID uuid = UUID.randomUUID();
         Employee employee = new Employee();
@@ -130,10 +130,10 @@ class EmployeeServiceTest {
         counselor.setId(uuid);
         counselor.setLevel(Level.A3);
         // Act
-        when(personService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
+        when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         // Assert
-        assertThrows(PersonCannotBeCreatedException.class, () -> {
-            personService.create(employee);
+        assertThrows(ObjectCannotBeCreatedException.class, () -> {
+            employeeService.create(employee);
         });
 
 

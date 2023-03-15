@@ -1,9 +1,12 @@
 package com.capgemini.training.controllers;
 
-import com.capgemini.training.dtos.EmployeeDTO;
-import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
+import com.capgemini.training.dtos.ResponseDTO;
+import com.capgemini.training.dtos.get.EmployeeGetDTO;
+import com.capgemini.training.dtos.post.EmployeePostDTO;
+import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
 import com.capgemini.training.models.Employee;
-import com.capgemini.training.services.PersonService;
+import com.capgemini.training.services.EmployeeService;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.Mapper;
@@ -26,7 +29,7 @@ import static org.mockito.Mockito.when;
 @Mapper(componentModel = "spring")
 class EmployeeControllerTest {
     @Mock
-    private PersonService personService;
+    private EmployeeService employeeService;
 
     @Mock
     private Logger logger;
@@ -44,7 +47,7 @@ class EmployeeControllerTest {
         employees.add(new Employee());
 
         // Act
-        when(personService.getAll()).thenReturn(employees);
+        when(employeeService.getAll()).thenReturn(employees);
 
         // Assert
         Iterable<Employee> result = (Iterable<Employee>) controller.getAll().getBody();
@@ -54,7 +57,7 @@ class EmployeeControllerTest {
     @Test
     void shouldGetExceptionByCallingAllPeople() {
         // Act
-        when(personService.getAll()).thenThrow(new RuntimeException("Error when fetching people"));
+        when(employeeService.getAll()).thenThrow(new RuntimeException("Error when fetching people"));
         ResponseEntity<?> response = controller.getAll();
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -71,11 +74,11 @@ class EmployeeControllerTest {
         employee.setId(id);
 
         // Act
-        when(personService.getById(id)).thenReturn(Optional.of(employee));
-        Employee employeeDb = (Employee) controller.getById(id).getBody();
+        when(employeeService.getById(id)).thenReturn(Optional.of(employee));
+        EmployeeGetDTO employeeDb = controller.getById(id).getBody().getResponseObject();
 
         // Assert
-        assertEquals(employee, employeeDb);
+        assertEquals(employee.getFirstname(), employeeDb.getFirstname());
     }
 
     @Test
@@ -83,7 +86,7 @@ class EmployeeControllerTest {
         // Arrange
         UUID id = UUID.randomUUID();
         // Act
-        when(personService.getById(any(UUID.class))).thenReturn(Optional.empty());
+        when(employeeService.getById(any(UUID.class))).thenReturn(Optional.empty());
         ResponseEntity<?> response = controller.getById(id);
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -95,7 +98,7 @@ class EmployeeControllerTest {
         // Arrange
         UUID uuid = UUID.randomUUID();
         // Act
-        when(personService.getById(any(UUID.class))).thenThrow(new RuntimeException("Error when fetching person"));
+        when(employeeService.getById(any(UUID.class))).thenThrow(new RuntimeException("Error when fetching person"));
         ResponseEntity<?> response = controller.getById(uuid);
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -103,9 +106,9 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void shouldCreatePersonWithoutCounselor() throws PersonCannotBeCreatedException {
+    void shouldCreatePersonWithoutCounselor() throws ObjectCannotBeCreatedException {
         // Arrange
-        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
+        EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         EMPLOYEEDTO.setLastname("Ozdemir");
         EMPLOYEEDTO.setFirstname("Omer");
         EMPLOYEEDTO.setCounselorId(null);
@@ -116,25 +119,25 @@ class EmployeeControllerTest {
         employee.setCounselor(null);
 
         // Act
-        when(personService.create(any(Employee.class))).thenReturn(employee);
+        when(employeeService.create(any(Employee.class))).thenReturn(employee);
 
-        EmployeeDTO createdPerson = (EmployeeDTO) controller.create(EMPLOYEEDTO, bindingResult).getBody();
+        ResponseEntity<ResponseDTO<EmployeePostDTO>> createdPerson =  controller.create(EMPLOYEEDTO, bindingResult);
 
         //assert
         assertNotNull(createdPerson);
-        assertEquals(EMPLOYEEDTO.getFirstname(), createdPerson.getFirstname());
-        assertEquals(EMPLOYEEDTO.getLastname(), createdPerson.getLastname());
+        assertEquals(EMPLOYEEDTO.getFirstname(), createdPerson.getBody().getResponseObject().getFirstname());
+        assertEquals(EMPLOYEEDTO.getLastname(), createdPerson.getBody().getResponseObject().getLastname());
     }
 
     @Test
-    void shouldGetExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
+    void shouldGetExceptionWhenCreatingPerson() throws ObjectCannotBeCreatedException {
         // Arrange
-        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
+        EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         EMPLOYEEDTO.setLastname("Ozdemir");
         EMPLOYEEDTO.setFirstname("Omer");
 
         // Act
-        when(personService.create(any(Employee.class))).thenThrow(new RuntimeException("Runtime exception"));
+        when(employeeService.create(any(Employee.class))).thenThrow(new RuntimeException("Runtime exception"));
 
         ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
 
@@ -143,11 +146,11 @@ class EmployeeControllerTest {
         verify(logger).error("Runtime exception");
     }
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws ObjectCannotBeCreatedException {
         // Arrange
-        EmployeeDTO EMPLOYEEDTO = new EmployeeDTO();
+        EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         // Act
-        when(personService.create(any(Employee.class))).thenThrow(new PersonCannotBeCreatedException("Person cannot be created"));
+        when(employeeService.create(any(Employee.class))).thenThrow(new ObjectCannotBeCreatedException("Person cannot be created"));
 
         ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
 

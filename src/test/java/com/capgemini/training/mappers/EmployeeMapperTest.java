@@ -1,7 +1,7 @@
 package com.capgemini.training.mappers;
 
 
-import com.capgemini.training.dtos.EmployeeDTO;
+import com.capgemini.training.dtos.post.EmployeePostDTO;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.models.Level;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ public class EmployeeMapperTest {
         employee.setLevel(Level.A3);
 
         // Act
-        EmployeeDTO mappedPerson = EmployeeMapper.INSTANCE.employeeToEmployeeDto(employee);
+        EmployeePostDTO mappedPerson = EmployeeMapper.INSTANCE.employeeToEmployeePostDto(employee);
 
         //Assert
         assertNotNull(mappedPerson);

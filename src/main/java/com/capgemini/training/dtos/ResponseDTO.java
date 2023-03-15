@@ -2,8 +2,8 @@ package com.capgemini.training.dtos;
 
 import java.util.List;
 
-public class ResponseDTO {
-    private Object responseObject;
+public class ResponseDTO<T> {
+    private T responseObject;
     private List<String> errorMessages;
     private String error;
 
@@ -11,8 +11,7 @@ public class ResponseDTO {
     }
 
 
-
-    public ResponseDTO(Object responseObject){
+    public ResponseDTO(T responseObject) {
         this.responseObject = responseObject;
     }
 
@@ -24,11 +23,12 @@ public class ResponseDTO {
         this.error = error;
     }
 
-    public Object getResponseObject() {
+
+    public T getResponseObject() {
         return responseObject;
     }
 
-    public void setResponseObject(Object responseObject) {
+    public void setResponseObject(T responseObject) {
         this.responseObject = responseObject;
     }
 
