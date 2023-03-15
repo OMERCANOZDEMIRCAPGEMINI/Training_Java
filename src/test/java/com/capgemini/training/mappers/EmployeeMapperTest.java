@@ -20,7 +20,7 @@ public class EmployeeMapperTest {
         employee.setLevel(Level.A3);
 
         // Act
-        EmployeeDTO mappedPerson = PersonMapper.INSTANCE.personToPersonDto(employee);
+        EmployeeDTO mappedPerson = EmployeeMapper.INSTANCE.employeeToEmployeeDto(employee);
 
         //Assert
         assertNotNull(mappedPerson);

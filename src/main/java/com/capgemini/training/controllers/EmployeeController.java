@@ -1,8 +1,9 @@
 package com.capgemini.training.controllers;
 
 import com.capgemini.training.dtos.EmployeeDTO;
+import com.capgemini.training.dtos.ResponseDTO;
 import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
-import com.capgemini.training.mappers.PersonMapper;
+import com.capgemini.training.mappers.EmployeeMapper;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.services.PersonService;
 import io.swagger.annotations.Api;
@@ -38,54 +39,54 @@ public class EmployeeController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all people from database")
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<ResponseDTO> getAll() {
         try {
-            Iterable<Employee> people = personService.getAll();
-            return ResponseEntity.ok(people);
+            Iterable<Employee> employees = personService.getAll();
+            return ResponseEntity.ok(new ResponseDTO(employees));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get person by UUID from database")
-    public ResponseEntity<?> getById(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<ResponseDTO> getById(@PathVariable(value = "id") UUID id) {
         try {
 
-            Optional<Employee> person = personService.getById(id);
-            if (person.isPresent()) {
-                return ResponseEntity.ok(person.get());
+            Optional<Employee> employee = personService.getById(id);
+            if (employee.isPresent()) {
+                return ResponseEntity.ok(new ResponseDTO(employee.get()));
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO("Person not found"));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a person")
-    public ResponseEntity<?> create(@Valid @RequestBody EmployeeDTO employeeDTO, BindingResult bindingResult) {
+    public ResponseEntity<ResponseDTO> create(@Valid @RequestBody EmployeeDTO employeeDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(errors));
         }
         try {
-            Employee createdEmployee = personService.create(PersonMapper.INSTANCE.personDtoToPerson(employeeDTO));
-            EmployeeDTO responsePerson = PersonMapper.INSTANCE.personToPersonDto(createdEmployee);
-            responsePerson.setCounselorId(employeeDTO.getCounselorId());
+            Employee createdEmployee = personService.create(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employeeDTO));
+            EmployeeDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeDto(createdEmployee);
+            responseEmployee.setCounselorId(employeeDTO.getCounselorId());
 
-            return ResponseEntity.ok(responsePerson);
+            return ResponseEntity.ok(new ResponseDTO(responseEmployee));
         } catch (PersonCannotBeCreatedException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(e.getMessage()));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 }

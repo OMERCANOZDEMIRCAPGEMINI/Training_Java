@@ -1,5 +1,6 @@
 package com.capgemini.training.controllers;
 
+import com.capgemini.training.dtos.ResponseDTO;
 import com.capgemini.training.dtos.UnitDTO;
 import com.capgemini.training.mappers.UnitMapper;
 import com.capgemini.training.models.Unit;
@@ -34,13 +35,13 @@ public class UnitController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all units from database")
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<ResponseDTO> getAll() {
         try {
-            Iterable<Unit> people = unitService.getAll();
-            return ResponseEntity.ok(people);
+            Iterable<Unit> units = unitService.getAll();
+            return ResponseEntity.ok(new ResponseDTO(units));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 
@@ -48,36 +49,33 @@ public class UnitController {
     @ApiOperation(value = "Get unit by UUID from database")
     public ResponseEntity<?> getById(@PathVariable(value = "id") UUID id) {
         try {
-            Optional<Unit> person = unitService.getById(id);
-            if (person.isPresent()) {
-                return ResponseEntity.ok(person.get());
+            Optional<Unit> unit = unitService.getById(id);
+            if (unit.isPresent()) {
+                return ResponseEntity.ok(unit.get());
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO("Unit not found"));
         } catch (Exception e) {
             logger.error(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create an unit")
-    public ResponseEntity<?> create(@Valid @RequestBody UnitDTO unit, BindingResult bindingResult) {
+    public ResponseEntity<ResponseDTO> create(@Valid @RequestBody UnitDTO unit, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(errors));
         }
         try {
             Unit createdUnit = unitService.create(UnitMapper.INSTANCE.unitDtoToUnit(unit));
-
             UnitDTO responseUnit = UnitMapper.INSTANCE.unitToUnitDto(createdUnit);
-            return ResponseEntity.ok(responseUnit);
+            return ResponseEntity.ok(new ResponseDTO(responseUnit));
         } catch (Exception e) {
             logger.error(e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("an error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO("an error occurred"));
         }
     }
 }
