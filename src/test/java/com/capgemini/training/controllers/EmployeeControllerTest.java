@@ -2,7 +2,6 @@ package com.capgemini.training.controllers;
 
 import com.capgemini.training.dtos.EmployeeDTO;
 import com.capgemini.training.exceptions.PersonCannotBeCreatedException;
-import com.capgemini.training.loggers.ILogger;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.services.PersonService;
 import org.junit.jupiter.api.Test;
@@ -11,6 +10,7 @@ import org.mapstruct.Mapper;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,7 +29,7 @@ class EmployeeControllerTest {
     private PersonService personService;
 
     @Mock
-    private ILogger logger;
+    private Logger logger;
     @Mock
     private BindingResult bindingResult;
 
@@ -58,7 +58,7 @@ class EmployeeControllerTest {
         ResponseEntity<?> response = controller.getAll();
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).log("Error when fetching people");
+        verify(logger).error("Error when fetching people");
     }
 
     @Test
@@ -99,7 +99,7 @@ class EmployeeControllerTest {
         ResponseEntity<?> response = controller.getById(uuid);
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).log("Error when fetching person");
+        verify(logger).error("Error when fetching person");
     }
 
     @Test
@@ -140,7 +140,7 @@ class EmployeeControllerTest {
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).log("Runtime exception");
+        verify(logger).error("Runtime exception");
     }
     @Test
     void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws PersonCannotBeCreatedException {
