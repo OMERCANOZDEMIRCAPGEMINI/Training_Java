@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ResponseDTO<T> {
     private T responseObject;
-    private List<String> errorMessages;
+    private List<String> bindingErrors;
     private String error;
 
     public ResponseDTO() {
@@ -15,8 +15,8 @@ public class ResponseDTO<T> {
         this.responseObject = responseObject;
     }
 
-    public ResponseDTO(List<String> errorMessages) {
-        this.errorMessages = errorMessages;
+    public ResponseDTO(List<String> bindingErrors) {
+        this.bindingErrors = bindingErrors;
     }
 
     public ResponseDTO(String error) {
@@ -32,12 +32,12 @@ public class ResponseDTO<T> {
         this.responseObject = responseObject;
     }
 
-    public List<String> getErrorMessages() {
-        return errorMessages;
+    public List<String> getBindingErrors() {
+        return bindingErrors;
     }
 
-    public void setErrorMessages(List<String> errorMessages) {
-        this.errorMessages = errorMessages;
+    public void setBindingErrors(List<String> bindingErrors) {
+        this.bindingErrors = bindingErrors;
     }
 
     public String getError() {

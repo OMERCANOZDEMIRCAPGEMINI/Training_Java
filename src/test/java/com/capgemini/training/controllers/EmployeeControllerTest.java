@@ -3,10 +3,9 @@ package com.capgemini.training.controllers;
 import com.capgemini.training.dtos.ResponseDTO;
 import com.capgemini.training.dtos.get.EmployeeGetDTO;
 import com.capgemini.training.dtos.post.EmployeePostDTO;
-import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
+import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.services.EmployeeService;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.Mapper;
@@ -106,7 +105,7 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void shouldCreatePersonWithoutCounselor() throws ObjectCannotBeCreatedException {
+    void shouldCreatePersonWithoutCounselor() throws ValidationException {
         // Arrange
         EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         EMPLOYEEDTO.setLastname("Ozdemir");
@@ -121,7 +120,7 @@ class EmployeeControllerTest {
         // Act
         when(employeeService.create(any(Employee.class))).thenReturn(employee);
 
-        ResponseEntity<ResponseDTO<EmployeePostDTO>> createdPerson =  controller.create(EMPLOYEEDTO, bindingResult);
+        ResponseEntity<ResponseDTO<EmployeeGetDTO>> createdPerson =  controller.create(EMPLOYEEDTO, bindingResult);
 
         //assert
         assertNotNull(createdPerson);
@@ -130,7 +129,7 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void shouldGetExceptionWhenCreatingPerson() throws ObjectCannotBeCreatedException {
+    void shouldGetExceptionWhenCreatingPerson() throws ValidationException {
         // Arrange
         EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         EMPLOYEEDTO.setLastname("Ozdemir");
@@ -146,11 +145,11 @@ class EmployeeControllerTest {
         verify(logger).error("Runtime exception");
     }
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws ObjectCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws ValidationException {
         // Arrange
         EmployeePostDTO EMPLOYEEDTO = new EmployeePostDTO();
         // Act
-        when(employeeService.create(any(Employee.class))).thenThrow(new ObjectCannotBeCreatedException("Person cannot be created"));
+        when(employeeService.create(any(Employee.class))).thenThrow(new ValidationException("Person cannot be created"));
 
         ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
 

@@ -1,6 +1,6 @@
 package com.capgemini.training.services;
 
-import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
+import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.models.Unit;
 import com.capgemini.training.repositories.EmployeeRepository;
@@ -27,14 +27,14 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
     }
 
     @Override
-    public Employee create(Employee employee) throws ObjectCannotBeCreatedException {
+    public Employee create(Employee employee) throws ValidationException {
 
         // Check unit
         Optional<Unit> unit = unitRepository.findById(employee.getUnitId());
         if (unit.isPresent()) {
             employee.setUnit(unit.get());
         } else {
-            throw new ObjectCannotBeCreatedException("Unit does not exist");
+            throw new ValidationException("Unit does not exist");
         }
 
         // Check if counselor id is null or not
@@ -44,11 +44,11 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
 
         Optional<Employee> counselor = getById(employee.getCounselorId());
         if (counselor.isEmpty()) {
-            throw new ObjectCannotBeCreatedException("Person cannot be created because counselor does not exist");
+            throw new ValidationException("Person cannot be created because counselor does not exist");
         }
 
         if (!checkGradeCounselorConselee(counselor.get().getLevel(), employee.getLevel())) {
-            throw new ObjectCannotBeCreatedException("Person cannot be created due to the level of the counselor");
+            throw new ValidationException("Person cannot be created due to the level of the counselor");
         }
 
         // update counselor and counselees
@@ -70,17 +70,17 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         return employeeRepository.findById(id);
     }
 
-    public Employee updateCounselorFromEmployee(UUID employeeId, UUID counselorId) throws ObjectCannotBeCreatedException {
+    public Employee updateCounselorFromEmployee(UUID employeeId, UUID counselorId) throws ValidationException {
 
         // Check if both exists
         Optional<Employee> employee = getById(employeeId);
         Optional<Employee> counselor = getById(counselorId);
 
         if (counselor.isEmpty() || employee.isEmpty()) {
-            throw new ObjectCannotBeCreatedException("Employee cannot be updated because counselor or employee does not exist");
+            throw new ValidationException("Employee cannot be updated because counselor or employee does not exist");
         }
         if (!checkGradeCounselorConselee(counselor.get().getLevel(), employee.get().getLevel())) {
-            throw new ObjectCannotBeCreatedException("Person cannot be created due to the level of the counselor");
+            throw new ValidationException("Person cannot be created due to the level of the counselor");
         }
         //Get previous counselor
         Employee previousCounselor = employee.get().getCounselor();

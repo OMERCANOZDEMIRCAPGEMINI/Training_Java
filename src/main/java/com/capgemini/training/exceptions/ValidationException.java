@@ -1,0 +1,7 @@
+package com.capgemini.training.exceptions;
+
+public class ValidationException extends Exception{
+    public ValidationException(String message) {
+        super(message);
+    }
+}

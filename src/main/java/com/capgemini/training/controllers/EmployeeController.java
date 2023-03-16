@@ -3,7 +3,7 @@ package com.capgemini.training.controllers;
 import com.capgemini.training.dtos.get.EmployeeGetDTO;
 import com.capgemini.training.dtos.post.EmployeePostDTO;
 import com.capgemini.training.dtos.ResponseDTO;
-import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
+import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.mappers.EmployeeMapper;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.services.EmployeeService;
@@ -70,7 +70,7 @@ public class EmployeeController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a person")
-    public ResponseEntity<ResponseDTO<EmployeePostDTO>> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) {
+    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -79,9 +79,9 @@ public class EmployeeController {
         }
         try {
             Employee createdEmployee = employeeService.create(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employeePostDTO));
-            EmployeePostDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeePostDto(createdEmployee);
+            EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(createdEmployee);
             return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
-        } catch (ObjectCannotBeCreatedException e) {
+        } catch (ValidationException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
         } catch (Exception e) {
@@ -95,7 +95,7 @@ public class EmployeeController {
             Employee updatedEmployee = employeeService.updateCounselorFromEmployee(employeeId,counselorId);
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
             return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
-        } catch (ObjectCannotBeCreatedException e) {
+        } catch (ValidationException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
         } catch (Exception e) {

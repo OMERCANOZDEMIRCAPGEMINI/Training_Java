@@ -1,6 +1,6 @@
 package com.capgemini.training.services;
 
-import com.capgemini.training.exceptions.ObjectCannotBeCreatedException;
+import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.models.Level;
 import com.capgemini.training.repositories.EmployeeRepository;
@@ -48,7 +48,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void ShouldCreatePersonWithoutCounselor() throws ObjectCannotBeCreatedException {
+    void ShouldCreatePersonWithoutCounselor() throws ValidationException {
         // Arrange
         Employee employee = new Employee();
         employee.setFirstname("omer");
@@ -80,7 +80,7 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByGivingBadCounselorId() throws ObjectCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByGivingBadCounselorId() throws ValidationException {
         // Arrange
         Employee employee = new Employee();
         employee.setCounselorId(UUID.randomUUID());
@@ -88,13 +88,13 @@ class EmployeeServiceTest {
         // Act
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.empty());
         // Assert
-        assertThrows(ObjectCannotBeCreatedException.class, () -> {
+        assertThrows(ValidationException.class, () -> {
             employeeService.create(employee);
         });
 
     }
     @Test
-    void shouldCreatePersonWithValidCounselorId() throws ObjectCannotBeCreatedException {
+    void shouldCreatePersonWithValidCounselorId() throws ValidationException {
         // Arrange
         UUID uuid = UUID.randomUUID();
         Employee employee = new Employee();
@@ -118,7 +118,7 @@ class EmployeeServiceTest {
 
     }
     @Test
-    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws ObjectCannotBeCreatedException {
+    void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws ValidationException {
         // Arrange
         UUID uuid = UUID.randomUUID();
         Employee employee = new Employee();
@@ -132,7 +132,7 @@ class EmployeeServiceTest {
         // Act
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         // Assert
-        assertThrows(ObjectCannotBeCreatedException.class, () -> {
+        assertThrows(ValidationException.class, () -> {
             employeeService.create(employee);
         });
 
