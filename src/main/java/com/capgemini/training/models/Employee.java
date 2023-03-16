@@ -2,6 +2,7 @@ package com.capgemini.training.models;
 
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.Data;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "EMPLOYEE")
+@Data
 public class Employee {
 
     @Id
@@ -53,101 +55,4 @@ public class Employee {
     public Employee() {
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public UUID getUnitId() {
-        return unitId;
-    }
-
-    public void setUnitId(UUID unitId) {
-        this.unitId = unitId;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public UUID getCounselorId() {
-        return counselorId;
-    }
-
-    public void setCounselorId(UUID counselorId) {
-        this.counselorId = counselorId;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-    @JsonBackReference
-
-    public Employee getCounselor() {
-        return counselor;
-    }
-
-    public void setCounselor(Employee counselor) {
-        this.counselor = counselor;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
-    @JsonManagedReference
-
-    public Set<Employee> getCounselees() {
-        return counselees;
-    }
-
-    public void setCounselees(Set<Employee> counselees) {
-        this.counselees = counselees;
-    }
 }
