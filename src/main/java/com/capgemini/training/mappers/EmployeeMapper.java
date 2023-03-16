@@ -15,15 +15,15 @@ import java.util.List;
 public interface EmployeeMapper {
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
-    @Mapping(source = "counselor.id", target = "counselorId")
+
     EmployeePostDTO employeeToEmployeePostDto(Employee employee);
 
     Employee employeeDtoToEmployee(EmployeePostDTO employeePostDTO);
 
     EmployeeGetDTO employeeToEmployeeGetDto(Employee employee);
-    @Mapping(source = "unit.name",target = "unit")
+
     CounseleesDTO employeeToCounseleeDto(Employee employee);
-    @Mapping(source = "unit.name",target = "unit")
+
 
     CounselorDTO employeeToCounselorDto(Employee employee);
     List<EmployeeGetDTO> employeesListToEmployeesGetListDto(Iterable<Employee> employees);
