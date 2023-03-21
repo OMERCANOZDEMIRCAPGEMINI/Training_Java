@@ -42,6 +42,7 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
             return employeeRepository.save(employee);
         }
 
+
         Optional<Employee> counselor = getById(employee.getCounselorId());
         if (counselor.isEmpty()) {
             throw new ValidationException("Person cannot be created because counselor does not exist");
@@ -64,46 +65,62 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         return employee;
     }
 
+    @Override
+    public Employee udpate(Employee employee, UUID uuid) throws ValidationException {
+        //Check if employee exist
+        Optional<Employee> employeeDb = getById(uuid);
+        if (employeeDb.isEmpty()) {
+            throw new ValidationException("Employee does not exist");
+        }
+        //Give id to new entity
+        employee.setId(uuid);
+        //Check if unit exist
+        Optional<Unit> unitDb = unitRepository.findById(employee.getUnitId());
+        if (unitDb.isEmpty()) {
+            throw new ValidationException("Unit does not exist");
+        }
+        employee.setUnit(unitDb.get());
+        //Check if employee has a previous counselor
+        Employee previousCounselor = employeeDb.get().getCounselor();
+        if (previousCounselor != null && !employee.getCounselorId().equals(previousCounselor.getId())) {
+            //Remove conselee from previous counselor
+            Set<Employee> previouscounselees = previousCounselor.getCounselees();
+            previouscounselees.remove(employeeDb.get());
+            // update previous counselor data
+            employeeRepository.save(previousCounselor);
+        }
+        //Check if employee has new counselor or not
+        if (employee.getCounselorId() == null) {
+            employeeRepository.save(employee);
+            return employee;
+        }
+
+        //Check if new counselor exist
+        Optional<Employee> newCounselor = getById(employee.getCounselorId());
+        if (newCounselor.isEmpty()) {
+            throw new ValidationException("Counselor does not exist");
+        }
+        if (!checkGradeCounselorConselee(newCounselor.get().getLevel(), employee.getLevel())) {
+            throw new ValidationException("Person cannot be created due to the level of the counselor");
+        }
+        //set employee the new counselor
+        employee.setCounselor(newCounselor.get());
+        //Add employee to counselor
+        Set<Employee> counselees = newCounselor.get().getCounselees();
+        counselees.add(employee);
+        newCounselor.get().setCounselees(counselees);
+        //save entities
+        employeeRepository.save(employee);
+        employeeRepository.save(newCounselor.get());
+
+        return employee;
+    }
+
 
     @Override
     public Optional<Employee> getById(UUID id) {
         return employeeRepository.findById(id);
     }
 
-    public Employee updateCounselorFromEmployee(UUID employeeId, UUID counselorId) throws ValidationException {
-
-        // Check if both exists
-        Optional<Employee> employee = getById(employeeId);
-        Optional<Employee> counselor = getById(counselorId);
-
-        if (counselor.isEmpty() || employee.isEmpty()) {
-            throw new ValidationException("Employee cannot be updated because counselor or employee does not exist");
-        }
-        if (!checkGradeCounselorConselee(counselor.get().getLevel(), employee.get().getLevel())) {
-            throw new ValidationException("Person cannot be created due to the level of the counselor");
-        }
-        //Get previous counselor
-        Employee previousCounselor = employee.get().getCounselor();
-        if (previousCounselor != null) {
-            //Remove conselee from previous counselor
-            Set<Employee> previouscounselees = previousCounselor.getCounselees();
-            previouscounselees.remove(employee.get());
-            // update
-            employeeRepository.save(previousCounselor);
-        }
-
-        //Add employee to counselor
-        Set<Employee> counselees = counselor.get().getCounselees();
-        counselees.add(employee.get());
-        counselor.get().setCounselees(counselees);
-        //Set new counselor to employee
-        employee.get().setCounselor(counselor.get());
-
-        // save the entities
-        employeeRepository.save(employee.get());
-        employeeRepository.save(counselor.get());
-
-        return employee.get();
-    }
 
 }

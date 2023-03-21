@@ -27,4 +27,9 @@ public class UnitService implements GenericCRUDService<Unit, UUID> {
     public Unit create(Unit entity) {
         return unitRepository.save(entity);
     }
+
+    @Override
+    public Unit udpate(Unit entity, UUID uuid) {
+        return null;
+    }
 }

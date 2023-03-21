@@ -3,7 +3,9 @@ package com.capgemini.training.services;
 import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
 import com.capgemini.training.models.Level;
+import com.capgemini.training.models.Unit;
 import com.capgemini.training.repositories.EmployeeRepository;
+import com.capgemini.training.repositories.UnitRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,10 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +23,8 @@ import static org.mockito.Mockito.when;
 class EmployeeServiceTest {
     @Mock
     private EmployeeRepository employeeRepository;
-
+    @Mock
+    private UnitRepository unitRepository;
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -53,8 +53,9 @@ class EmployeeServiceTest {
         Employee employee = new Employee();
         employee.setFirstname("omer");
         employee.setLastname("ozdemir");
-
+        employee.setUnitId(UUID.randomUUID());
         // Act
+        when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeRepository.save(employee)).thenReturn(employee);
         Employee created_employee = employeeService.create(employee);
         // Assert
@@ -84,8 +85,10 @@ class EmployeeServiceTest {
         // Arrange
         Employee employee = new Employee();
         employee.setCounselorId(UUID.randomUUID());
+        employee.setUnitId(UUID.randomUUID());
 
         // Act
+        when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.empty());
         // Assert
         assertThrows(ValidationException.class, () -> {
@@ -93,6 +96,7 @@ class EmployeeServiceTest {
         });
 
     }
+
     @Test
     void shouldCreatePersonWithValidCounselorId() throws ValidationException {
         // Arrange
@@ -101,22 +105,26 @@ class EmployeeServiceTest {
         employee.setFirstname("omer");
         employee.setLevel(Level.A3);
         employee.setCounselorId(uuid);
-
+        employee.setUnitId(UUID.randomUUID());
 
         Employee counselor = new Employee();
         counselor.setId(uuid);
-        counselor.setLevel(Level.A4);
+        counselor.setLevel(Level.D2);
+        Set<Employee> counselees = new HashSet<>();
+        counselor.setCounselees(counselees);
         // Act
+        when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
         Employee createdEmployee = employeeService.create(employee);
         // Assert
 
         assertEquals(employee.getFirstname(), createdEmployee.getFirstname());
-        assertEquals(employee.getCounselor().getId(),counselor.getId());
+        assertEquals(employee.getCounselor().getId(), counselor.getId());
 
 
     }
+
     @Test
     void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPersonByComparingLevels() throws ValidationException {
         // Arrange
@@ -125,17 +133,18 @@ class EmployeeServiceTest {
         employee.setFirstname("omer");
         employee.setLevel(Level.A4);
         employee.setCounselorId(uuid);
+        employee.setUnitId(UUID.randomUUID());
 
         Employee counselor = new Employee();
         counselor.setId(uuid);
         counselor.setLevel(Level.A3);
         // Act
+        when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         // Assert
         assertThrows(ValidationException.class, () -> {
             employeeService.create(employee);
         });
-
 
     }
 }

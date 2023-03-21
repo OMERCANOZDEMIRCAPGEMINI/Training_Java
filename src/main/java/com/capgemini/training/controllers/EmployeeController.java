@@ -39,7 +39,7 @@ public class EmployeeController {
 
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get all people from database")
+    @ApiOperation(value = "Get all employees from database")
     public ResponseEntity<ResponseDTO<Iterable<EmployeeGetDTO>>> getAll() {
         try {
             Iterable<EmployeeGetDTO> employees = EmployeeMapper.INSTANCE.employeesListToEmployeesGetListDto(employeeService.getAll());
@@ -51,7 +51,7 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get person by UUID from database")
+    @ApiOperation(value = "Get employee by UUID from database")
     public ResponseEntity<ResponseDTO<EmployeeGetDTO>> getById(@PathVariable(value = "id") UUID id) {
         try {
 
@@ -69,7 +69,7 @@ public class EmployeeController {
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Create a person")
+    @ApiOperation(value = "Create an employee")
     public ResponseEntity<ResponseDTO<EmployeeGetDTO>> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
@@ -89,10 +89,11 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
         }
     }
-    @PutMapping(value = "{employeeId}/{counselorId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> updateCounselorFromCounselee(@PathVariable(value = "employeeId") UUID employeeId,@PathVariable(value = "counselorId") UUID counselorId){
+    @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE,consumes =MediaType.APPLICATION_JSON_VALUE )
+    @ApiOperation(value = "Update an employee")
+    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> update(@PathVariable(value = "id") UUID id,@Valid @RequestBody EmployeePostDTO employee){
         try {
-            Employee updatedEmployee = employeeService.updateCounselorFromEmployee(employeeId,counselorId);
+            Employee updatedEmployee = employeeService.udpate(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee),id);
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
             return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
         } catch (ValidationException e) {

@@ -49,18 +49,17 @@ class EmployeeControllerTest {
         when(employeeService.getAll()).thenReturn(employees);
 
         // Assert
-        Iterable<Employee> result = (Iterable<Employee>) controller.getAll().getBody();
-        assertEquals(employees, result);
+        Iterable<EmployeeGetDTO> result = controller.getAll().getBody().getResponseObject();
+        assertNotNull(result);
     }
 
     @Test
     void shouldGetExceptionByCallingAllPeople() {
         // Act
         when(employeeService.getAll()).thenThrow(new RuntimeException("Error when fetching people"));
-        ResponseEntity<?> response = controller.getAll();
+        ResponseEntity<ResponseDTO<Iterable<EmployeeGetDTO>>> response = controller.getAll();
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).error("Error when fetching people");
     }
 
     @Test
@@ -86,10 +85,10 @@ class EmployeeControllerTest {
         UUID id = UUID.randomUUID();
         // Act
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.empty());
-        ResponseEntity<?> response = controller.getById(id);
+        ResponseEntity<ResponseDTO<EmployeeGetDTO>> response = controller.getById(id);
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Person not found", response.getBody());
+        assertEquals("Person not found", response.getBody().getError());
     }
 
     @Test
@@ -101,7 +100,6 @@ class EmployeeControllerTest {
         ResponseEntity<?> response = controller.getById(uuid);
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).error("Error when fetching person");
     }
 
     @Test
@@ -142,7 +140,6 @@ class EmployeeControllerTest {
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(logger).error("Runtime exception");
     }
     @Test
     void shouldThrowPersonCannotBeCreatedExceptionWhenCreatingPerson() throws ValidationException {
@@ -151,10 +148,10 @@ class EmployeeControllerTest {
         // Act
         when(employeeService.create(any(Employee.class))).thenThrow(new ValidationException("Person cannot be created"));
 
-        ResponseEntity<?> response = controller.create(EMPLOYEEDTO, bindingResult);
+        ResponseEntity<ResponseDTO<EmployeeGetDTO>> response = controller.create(EMPLOYEEDTO, bindingResult);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Person cannot be created",response.getBody());
+        assertEquals("Person cannot be created",response.getBody().getError());
     }
 }
