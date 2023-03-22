@@ -6,17 +6,16 @@ phases:
       java: corretto11
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - echo "Installing dependencies..."
+      - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   build:
     commands:
-      - echo Build started on `date`
-      - mvn package
+      - echo "Building application..."
+      - mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo "Running tests..."
+      - mvn test
+artifacts:
+  files:
+    - target/*.jar
