@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: openjdk11
+      docker: 19
+    commands:
+      - echo Installing dependencies...
+      - mvn clean install
+
+  pre_build:
+    commands:
+      - echo Running tests...
+      - mvn test
+
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t <docker-image-name>:<tag> .
+
+  post_build:
+    commands:
+      - echo Pushing Docker image to registry...
+      - $(aws ecr get-login --no-include-email --region <region>)
+      - docker push <docker-image-name>:<tag>
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
