@@ -2,7 +2,6 @@ package com.capgemini.training.controllers;
 
 import com.capgemini.training.dtos.get.EmployeeGetDTO;
 import com.capgemini.training.dtos.post.EmployeePostDTO;
-import com.capgemini.training.dtos.ResponseDTO;
 import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.mappers.EmployeeMapper;
 import com.capgemini.training.models.Employee;
@@ -37,71 +36,72 @@ public class EmployeeController {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
 
 
-
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all employees from database")
-    public ResponseEntity<ResponseDTO<Iterable<EmployeeGetDTO>>> getAll() {
+    public ResponseEntity<?> getAll() throws Exception {
         try {
             Iterable<EmployeeGetDTO> employees = EmployeeMapper.INSTANCE.employeesListToEmployeesGetListDto(employeeService.getAll());
-            return ResponseEntity.ok(new ResponseDTO<>(employees));
+            return ResponseEntity.ok(employees);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
+            throw new Exception("Something went wrong");
         }
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get employee by UUID from database")
-    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> getById(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<?> getById(@PathVariable(value = "id") UUID id) throws Exception {
         try {
 
             Optional<Employee> employee = employeeService.getById(id);
             if (employee.isPresent()) {
                 EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(employee.get());
-                return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
+                return ResponseEntity.ok(responseEmployee);
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO<>("Person not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
+            throw new Exception("Something went wrong");
         }
     }
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create an employee")
-    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(errors));
+            String errorMessage = String.join(",", errors);
+            throw new ValidationException(errorMessage);
         }
         try {
             Employee createdEmployee = employeeService.create(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employeePostDTO));
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(createdEmployee);
-            return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
+            return ResponseEntity.ok(responseEmployee);
         } catch (ValidationException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
+            throw new Exception("Something went wrong");
         }
     }
-    @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE,consumes =MediaType.APPLICATION_JSON_VALUE )
+
+    @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update an employee")
-    public ResponseEntity<ResponseDTO<EmployeeGetDTO>> update(@PathVariable(value = "id") UUID id,@Valid @RequestBody EmployeePostDTO employee){
+    public ResponseEntity<?> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody EmployeePostDTO employee) throws Exception {
         try {
-            Employee updatedEmployee = employeeService.udpate(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee),id);
+            Employee updatedEmployee = employeeService.udpate(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee), id);
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
-            return ResponseEntity.ok(new ResponseDTO<>(responseEmployee));
+            return ResponseEntity.ok(responseEmployee);
         } catch (ValidationException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO<>(e.getMessage()));
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO<>("an error occurred"));
+            throw new Exception("Something went wrong");
         }
     }
 }
