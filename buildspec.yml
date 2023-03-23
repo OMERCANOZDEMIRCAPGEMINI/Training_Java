@@ -3,29 +3,25 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: openjdk17
-      docker: 19
-    commands:
-      - echo Installing dependencies...
-      - mvn clean install
-
+      java: corretto17
   pre_build:
     commands:
-      - echo Running tests...
-      - mvn test
-
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t <docker-image-name>:<tag> .
-
+      - echo Build started on `date`
+      - mvn package
   post_build:
     commands:
-      - echo Pushing Docker image to registry...
-      - $(aws ecr get-login --no-include-email --region <region>)
-      - docker push <docker-image-name>:<tag>
-
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker build -t java_training_docker_registry:latest .
+      - docker tag java_training_docker_registry 176497889442.dkr.ecr.eu-west-3.amazonaws.com/java_training_docker_registry
+      - docker push 176497889442.dkr.ecr.eu-west-3.amazonaws.com/java_training_docker_registry
+      - echo Writing image definitions file...
 artifacts:
   files:
-    - '**/*'
-  discard-paths: yes
+    - target/*.jar
+    - imagedefinitions.json
