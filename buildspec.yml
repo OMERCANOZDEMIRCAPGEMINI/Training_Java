@@ -13,11 +13,3 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn package
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker build -t java_training_docker_registry:latest .
-      - docker tag $ECR_NAME  $ECR_URL
-      - docker push $ECR_URL
-      - echo Writing image definitions file...
