@@ -2,17 +2,20 @@ package com.capgemini.training.services;
 
 import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
+import com.capgemini.training.models.Level;
 import com.capgemini.training.models.Unit;
 import com.capgemini.training.repositories.EmployeeRepository;
 import com.capgemini.training.repositories.UnitRepository;
+import com.capgemini.training.rules.LevelRule;
+import com.capgemini.training.rules.RuleEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.capgemini.training.helpers.GradeChecker.checkGradeCounselorConselee;
 
 @Service
 public class EmployeeService implements GenericCRUDService<Employee, UUID> {
@@ -20,6 +23,8 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
     public EmployeeRepository employeeRepository;
     @Autowired
     public UnitRepository unitRepository;
+    @Autowired
+    public RuleEngine ruleEngine;
 
     @Override
     public Iterable<Employee> getAll() {
@@ -48,9 +53,8 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
             throw new ValidationException("Person cannot be created because counselor does not exist");
         }
 
-        if (!checkGradeCounselorConselee(counselor.get().getLevel(), employee.getLevel())) {
-            throw new ValidationException("Person cannot be created due to the level of the counselor");
-        }
+        //Check rule
+        checkGradeCounselorCounselee(counselor.get().getLevel(),employee.getLevel());
 
         // update counselor and counselees
         Set<Employee> counselees = counselor.get().getCounselees();
@@ -100,9 +104,10 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         if (newCounselor.isEmpty()) {
             throw new ValidationException("Counselor does not exist");
         }
-        if (!checkGradeCounselorConselee(newCounselor.get().getLevel(), employee.getLevel())) {
-            throw new ValidationException("Person cannot be created due to the level of the counselor");
-        }
+
+        //Check rules
+        checkGradeCounselorCounselee(newCounselor.get().getLevel(),employee.getLevel());
+
         //set employee the new counselor
         employee.setCounselor(newCounselor.get());
         //Add employee to counselor
@@ -116,6 +121,18 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         return employee;
     }
 
+    public void checkGradeCounselorCounselee(Level counselorLevel, Level employeeLevel) throws ValidationException {
+        //Create the needed rules
+        LevelRule levelRule = new LevelRule();
+        //Add the rule
+        ruleEngine.addRule(levelRule);
+        //Make the input value
+        Pair<Level,Level> counselorEmployeeLevels = Pair.of(counselorLevel,employeeLevel);
+        //check validation of rules
+        if(!ruleEngine.validate(counselorEmployeeLevels)){
+           throw new ValidationException("Is not valid due the level of the employees");
+        }
+    }
 
     @Override
     public Optional<Employee> getById(UUID id) {

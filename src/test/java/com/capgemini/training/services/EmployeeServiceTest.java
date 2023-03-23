@@ -6,6 +6,7 @@ import com.capgemini.training.models.Level;
 import com.capgemini.training.models.Unit;
 import com.capgemini.training.repositories.EmployeeRepository;
 import com.capgemini.training.repositories.UnitRepository;
+import com.capgemini.training.rules.RuleEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,8 @@ class EmployeeServiceTest {
     private EmployeeRepository employeeRepository;
     @Mock
     private UnitRepository unitRepository;
+    @Mock
+    private RuleEngine ruleEngine;
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -113,6 +116,7 @@ class EmployeeServiceTest {
         Set<Employee> counselees = new HashSet<>();
         counselor.setCounselees(counselees);
         // Act
+        when(ruleEngine.validate(any(Object.class))).thenReturn(true);
         when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
@@ -139,6 +143,7 @@ class EmployeeServiceTest {
         counselor.setId(uuid);
         counselor.setLevel(Level.A3);
         // Act
+        when(ruleEngine.validate(any(Object.class))).thenReturn(false);
         when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         // Assert

@@ -38,7 +38,7 @@ public class EmployeeController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get all employees from database")
-    public ResponseEntity<?> getAll() throws Exception {
+    public ResponseEntity<Iterable<EmployeeGetDTO>> getAll() throws Exception {
         try {
             Iterable<EmployeeGetDTO> employees = EmployeeMapper.INSTANCE.employeesListToEmployeesGetListDto(employeeService.getAll());
             return ResponseEntity.ok(employees);
@@ -68,7 +68,7 @@ public class EmployeeController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create an employee")
-    public ResponseEntity<?> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) throws Exception {
+    public ResponseEntity<EmployeeGetDTO> create(@Valid @RequestBody EmployeePostDTO employeePostDTO, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -91,7 +91,7 @@ public class EmployeeController {
 
     @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update an employee")
-    public ResponseEntity<?> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody EmployeePostDTO employee) throws Exception {
+    public ResponseEntity<EmployeeGetDTO> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody EmployeePostDTO employee) throws Exception {
         try {
             Employee updatedEmployee = employeeService.udpate(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee), id);
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
