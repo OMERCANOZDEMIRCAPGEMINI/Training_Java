@@ -18,8 +18,8 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker build -t java_training_docker_registry:latest .
-      - docker tag java_training_docker_registry 176497889442.dkr.ecr.eu-west-3.amazonaws.com/java_training_docker_registry
-      - docker push 176497889442.dkr.ecr.eu-west-3.amazonaws.com/java_training_docker_registry
+      - docker tag $ECR_NAME  $ECR_URL
+      - docker push $ECR_URL
       - echo Writing image definitions file...
 artifacts:
   files:
