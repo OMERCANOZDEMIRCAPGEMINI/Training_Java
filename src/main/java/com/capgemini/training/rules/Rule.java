@@ -1,7 +1,7 @@
 package com.capgemini.training.rules;
 
-import com.capgemini.training.models.Level;
 
-public interface IRule {
+public interface Rule {
     boolean validate(Object input);
+    String errorMessage();
 }

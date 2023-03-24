@@ -4,7 +4,7 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src/ /app/src/
-RUN mvn package -DskipTests
+RUN mvn package
 
 # Stage 2: Package the application in a lightweight runtime environment
 FROM openjdk:17-slim

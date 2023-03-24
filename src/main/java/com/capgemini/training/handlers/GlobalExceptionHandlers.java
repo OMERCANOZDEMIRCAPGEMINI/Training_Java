@@ -16,7 +16,7 @@ public class GlobalExceptionHandlers {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationException(ValidationException ex) {
-        ErrorResponseDto errorResponse = new ErrorResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        ErrorResponseDto errorResponse = new ErrorResponseDto(ex.getErrors(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 

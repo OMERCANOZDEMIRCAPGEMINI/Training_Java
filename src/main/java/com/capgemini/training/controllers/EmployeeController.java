@@ -81,8 +81,8 @@ public class EmployeeController {
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(createdEmployee);
             return ResponseEntity.ok(responseEmployee);
         } catch (ValidationException e) {
-            logger.error(e.getMessage());
-            throw new ValidationException(e.getMessage());
+            logger.error(e.getErrors().toString());
+            throw new ValidationException(e.getErrors());
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new Exception("Something went wrong");
@@ -97,8 +97,8 @@ public class EmployeeController {
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
             return ResponseEntity.ok(responseEmployee);
         } catch (ValidationException e) {
-            logger.error(e.getMessage());
-            throw new ValidationException(e.getMessage());
+            logger.error(e.getErrors().toString());
+            throw new ValidationException(e.getErrors());
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new Exception("Something went wrong");

@@ -2,16 +2,15 @@ package com.capgemini.training.services;
 
 import com.capgemini.training.exceptions.ValidationException;
 import com.capgemini.training.models.Employee;
-import com.capgemini.training.models.Level;
 import com.capgemini.training.models.Unit;
 import com.capgemini.training.repositories.EmployeeRepository;
 import com.capgemini.training.repositories.UnitRepository;
-import com.capgemini.training.rules.LevelRule;
 import com.capgemini.training.rules.RuleEngine;
+import com.capgemini.training.rules.inputs.CounselorCounseleeLevelInput;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -54,7 +53,7 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         }
 
         //Check rule
-        checkGradeCounselorCounselee(counselor.get().getLevel(),employee.getLevel());
+        checkGradeCounselorCounselee(new CounselorCounseleeLevelInput(counselor.get().getLevel(), employee.getLevel()));
 
         // update counselor and counselees
         Set<Employee> counselees = counselor.get().getCounselees();
@@ -106,7 +105,7 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         }
 
         //Check rules
-        checkGradeCounselorCounselee(newCounselor.get().getLevel(),employee.getLevel());
+        checkGradeCounselorCounselee(new CounselorCounseleeLevelInput(newCounselor.get().getLevel(), employee.getLevel()));
 
         //set employee the new counselor
         employee.setCounselor(newCounselor.get());
@@ -121,16 +120,10 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
         return employee;
     }
 
-    public void checkGradeCounselorCounselee(Level counselorLevel, Level employeeLevel) throws ValidationException {
-        //Create the needed rules
-        LevelRule levelRule = new LevelRule();
-        //Add the rule
-        ruleEngine.addRule(levelRule);
-        //Make the input value
-        Pair<Level,Level> counselorEmployeeLevels = Pair.of(counselorLevel,employeeLevel);
-        //check validation of rules
-        if(!ruleEngine.validate(counselorEmployeeLevels)){
-           throw new ValidationException("Is not valid due the level of the employees");
+    public void checkGradeCounselorCounselee(CounselorCounseleeLevelInput input) throws ValidationException {
+        List<String> errors = ruleEngine.validate(input);
+        if(!errors.isEmpty()){
+            throw new ValidationException(errors);
         }
     }
 

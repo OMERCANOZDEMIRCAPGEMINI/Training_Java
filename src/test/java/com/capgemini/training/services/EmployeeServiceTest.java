@@ -116,7 +116,7 @@ class EmployeeServiceTest {
         Set<Employee> counselees = new HashSet<>();
         counselor.setCounselees(counselees);
         // Act
-        when(ruleEngine.validate(any(Object.class))).thenReturn(true);
+        when(ruleEngine.validate(any(Object.class))).thenReturn(Collections.emptyList());
         when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
@@ -142,8 +142,11 @@ class EmployeeServiceTest {
         Employee counselor = new Employee();
         counselor.setId(uuid);
         counselor.setLevel(Level.A3);
+
+        List<String> errorMessages = List.of("Employee level must be C2 to be counselor");
+
         // Act
-        when(ruleEngine.validate(any(Object.class))).thenReturn(false);
+        when(ruleEngine.validate(any(Object.class))).thenReturn(errorMessages);
         when(unitRepository.findById(any(UUID.class))).thenReturn(Optional.of(new Unit()));
         when(employeeService.getById(any(UUID.class))).thenReturn(Optional.of(counselor));
         // Assert

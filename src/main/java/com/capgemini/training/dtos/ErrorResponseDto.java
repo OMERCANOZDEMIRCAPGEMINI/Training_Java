@@ -1,27 +1,26 @@
 package com.capgemini.training.dtos;
 
+import java.util.Collections;
+import java.util.List;
+
 public class ErrorResponseDto {
-    private String message;
+    private List<String> messages;
     private int errorCode;
 
     public ErrorResponseDto(String message, int errorCode) {
-        this.message = message;
+        this.messages = Collections.singletonList(message);
         this.errorCode = errorCode;
     }
-
-    public String getMessage() {
-        return message;
+    public ErrorResponseDto(List<String> messages, int errorCode){
+        this.messages = messages;
+        this.errorCode = errorCode;
     }
-
-    public void setMessage(String message) {
-        this.message = message;
+    public List<String> getMessages() {
+        return messages;
     }
 
     public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
 }

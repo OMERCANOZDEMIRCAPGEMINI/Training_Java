@@ -9,6 +9,6 @@ public class HelloController {
     @GetMapping("hello")
     @ApiOperation(value = "Get hello world")
     public String getHello(){
-        return "Hello World ci";
+        return "Hello World";
     }
 }
