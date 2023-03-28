@@ -8,5 +8,5 @@ public interface GenericCRUDService <T, ID> {
     Iterable<T> getAll();
     Optional<T> getById(ID id);
     T create(T entity) throws ValidationException;
-    T udpate(T entity,ID id) throws ValidationException;
+    T update(T entity, ID id) throws ValidationException;
 }

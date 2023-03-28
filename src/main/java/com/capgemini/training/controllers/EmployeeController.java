@@ -93,7 +93,7 @@ public class EmployeeController {
     @ApiOperation(value = "Update an employee")
     public ResponseEntity<EmployeeGetDTO> update(@PathVariable(value = "id") UUID id, @Valid @RequestBody EmployeePostDTO employee) throws Exception {
         try {
-            Employee updatedEmployee = employeeService.udpate(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee), id);
+            Employee updatedEmployee = employeeService.update(EmployeeMapper.INSTANCE.employeeDtoToEmployee(employee), id);
             EmployeeGetDTO responseEmployee = EmployeeMapper.INSTANCE.employeeToEmployeeGetDto(updatedEmployee);
             return ResponseEntity.ok(responseEmployee);
         } catch (ValidationException e) {

@@ -69,7 +69,7 @@ public class EmployeeService implements GenericCRUDService<Employee, UUID> {
     }
 
     @Override
-    public Employee udpate(Employee employee, UUID uuid) throws ValidationException {
+    public Employee update(Employee employee, UUID uuid) throws ValidationException {
         //Check if employee exist
         Optional<Employee> employeeDb = getById(uuid);
         if (employeeDb.isEmpty()) {

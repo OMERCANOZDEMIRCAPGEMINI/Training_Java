@@ -29,7 +29,7 @@ public class UnitService implements GenericCRUDService<Unit, UUID> {
     }
 
     @Override
-    public Unit udpate(Unit entity, UUID uuid) {
+    public Unit update(Unit entity, UUID uuid) {
         return null;
     }
 }

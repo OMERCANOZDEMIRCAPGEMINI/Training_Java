@@ -9,6 +9,7 @@ public class RuleEngine {
     @Autowired
     private List<Rule> rules;
 
+
     public List<String> validate(Object input) {
         return rules.stream()
                 .filter(rule -> !rule.validate(input))

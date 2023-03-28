@@ -18,6 +18,6 @@ public class CounselorMinimumLevelRule implements Rule {
 
     @Override
     public String errorMessage() {
-        return "Employee must be level greater than C2 to be a counselor";
+        return "Employee must be greater than C2 level to be a counselor";
     }
 }
