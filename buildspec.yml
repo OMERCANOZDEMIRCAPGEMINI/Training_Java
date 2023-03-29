@@ -9,6 +9,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - service docker start
   build:
     commands:
       - echo Build started on `date`
