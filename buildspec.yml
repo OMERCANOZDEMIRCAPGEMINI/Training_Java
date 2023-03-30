@@ -21,7 +21,10 @@ phases:
       - docker tag $ECR_NAME $ECR_URL
       - docker push $ECR_URL
       - echo Writing image definitions file....
-      - printf '[{"name":"your.task.definition.name","imageUri":"%s"}]' $ECR_URL:latest > imagedefinitions.json
-    artifacts:
-        files: imagedefinitions.json
+  artifacts:
+    files:
+      - '**/*'
+    base-directory: base_dir
+    name: build-artifact-name
+    discard-paths: no
 
