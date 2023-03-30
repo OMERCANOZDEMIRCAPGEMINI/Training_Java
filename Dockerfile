@@ -10,5 +10,5 @@ RUN mvn package
 FROM openjdk:17-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar spring-boot-training-jar.jar
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["java","-jar","/app/spring-boot-training-jar.jar"]
