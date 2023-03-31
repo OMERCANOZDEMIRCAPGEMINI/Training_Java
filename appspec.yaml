@@ -1,5 +1,14 @@
 version: 0.0
 Resources:
+  - files:
+      - source: /
+        destination: /var/www/html/myapp
+      - source: taskdef.json
+        destination: /home/ec2-user/myapp
+      - source: appspec.yml
+        destination: /home/ec2-user/myapp
+      - source: imagedefinitions.json
+        destination: /home/ec2-user/myapp
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
