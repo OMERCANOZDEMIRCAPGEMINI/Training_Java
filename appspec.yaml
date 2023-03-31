@@ -9,10 +9,10 @@ Resources:
         destination: /home/ec2-user/myapp
       - source: imagedefinitions.json
         destination: /home/ec2-user/myapp
-  - TargetService:
-      Type: AWS::ECS::Service
-      Properties:
-        TaskDefinition: "arn:aws:ecs:eu-west-3:324215794169:task-definition/new-api-service-task"
-        LoadBalancerInfo:
-          ContainerName: "api"
-          ContainerPort: 8080
+      - TargetService:
+          Type: AWS::ECS::Service
+          Properties:
+            TaskDefinition: "arn:aws:ecs:eu-west-3:324215794169:task-definition/new-api-service-task"
+            LoadBalancerInfo:
+              ContainerName: "api"
+              ContainerPort: 8080
