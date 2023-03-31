@@ -5,5 +5,5 @@ Resources:
       Properties:
         TaskDefinition: "arn:aws:ecs:eu-west-3:324215794169:task-definition/new-api-service-task"
         LoadBalancerInfo:
-          ContainerName: "api"
+          ContainerName: "java_training_docker_registry"
           ContainerPort: 8080
