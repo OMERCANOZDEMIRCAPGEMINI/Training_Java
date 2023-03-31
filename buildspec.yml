@@ -24,15 +24,7 @@ phases:
       - printf '[{"name":"java_training_docker_registry","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files:
-    - 'image*.json'
-    - 'appspec.yml'
-    - 'taskdef.json'
-  secondary-artifacts:
-    DefinitionArtifact:
-      files:
-        - appspec.yml
-        - taskdef.json
-    ImageArtifact:
-      files:
-        - imagedefinitions.json
+    - '**/*'
+    - imagedefinitions.json
+  base-directory: './build/libs'
 
