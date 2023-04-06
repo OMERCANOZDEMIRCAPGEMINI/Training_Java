@@ -1,18 +1,10 @@
 version: 0.0
 Resources:
-  - files:
-      - source: /
-        destination: /var/www/html/myapp
-      - source: taskdef.json
-        destination: /home/ec2-user/myapp
-      - source: appspec.yml
-        destination: /home/ec2-user/myapp
-      - source: imagedefinitions.json
-        destination: /home/ec2-user/myapp
-      - TargetService:
-          Type: AWS::ECS::Service
-          Properties:
-            TaskDefinition: "arn:aws:ecs:eu-west-3:324215794169:task-definition/new-api-service-task"
-            LoadBalancerInfo:
-              ContainerName: "api"
-              ContainerPort: 8080
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        #TaskDefinition: "arn:aws:ecs:eu-west-3:324215794169:task-definition/api-counselor-task-definition:1"
+        TaskDefinition: <TASK_DEFINITION>
+        LoadBalancerInfo:
+          ContainerName: "java_training_docker_registry"
+          ContainerPort: 8080
