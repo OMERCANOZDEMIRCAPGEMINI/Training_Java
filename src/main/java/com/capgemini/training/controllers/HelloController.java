@@ -11,4 +11,11 @@ public class HelloController {
     public String getHello(){
         return "Hello World";
     }
+
+    @GetMapping("ci")
+    @ApiOperation(value = "Get hello world")
+    public String getci(){
+        return "Hello from new ci/cd pipeling";
+    }
+
 }
