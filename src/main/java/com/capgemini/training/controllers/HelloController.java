@@ -14,7 +14,7 @@ public class HelloController {
 
     @GetMapping("ci")
     @ApiOperation(value = "Get hello world")
-    public String getci(){
+    public String getCiCd(){
         return "Hello from new ci/cd pipeling";
     }
 
