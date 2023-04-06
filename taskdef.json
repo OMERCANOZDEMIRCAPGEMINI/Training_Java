@@ -15,7 +15,7 @@
       ]
     }
   ],
-  "family": "new-api-service-task",
+  "family": "api-counselor-task-definition:1",
   "compatibilities": [
     "EXTERNAL",
     "EC2"
