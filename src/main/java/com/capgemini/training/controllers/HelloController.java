@@ -12,10 +12,10 @@ public class HelloController {
         return "Hello World";
     }
 
-    @GetMapping("ci")
+    @GetMapping("demo")
     @ApiOperation(value = "Get hello world")
     public String getCiCd(){
-        return "Hello from new ci/cd pipeline";
+        return "Hello from DEMO";
     }
 
 }
